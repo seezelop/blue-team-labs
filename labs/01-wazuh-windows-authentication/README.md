@@ -173,6 +173,19 @@ However, in this specific lab scenario, the observed evidence only confirms fail
 
 This highlights an important SOC lesson: MITRE mappings from tools should be reviewed critically and validated against the actual evidence.
 
+## Evidence and Screenshots
+### Wazuh failed logon alerts
+
+The following screenshot shows multiple failed Windows logon alerts detected by Wazuh.
+
+![Wazuh failed logon alerts](screenshots/wazuh-logon-failure-events-sanitized.png)
+
+### Windows Event ID 4625 details
+
+The following screenshot shows the detailed event fields collected by Wazuh, including the original Windows Security Event ID `4625` and the target test user.
+
+![Windows Event ID 4625 details](screenshots/event-details-4625-sanitized.png)
+
 ## Conclusion
 
 This lab successfully demonstrated the detection and investigation of failed Windows authentication attempts using Wazuh.
