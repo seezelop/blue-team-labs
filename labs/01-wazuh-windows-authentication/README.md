@@ -6,14 +6,13 @@ The objective of this lab is to detect and investigate failed Windows authentica
 
 This lab demonstrates the basic SOC workflow:
 
-```text
+
 Windows activity
 → Windows Security Event
 → Wazuh Agent
 → Wazuh Server
 → Wazuh Dashboard
 → SOC investigation
-```
 
 ## Lab Architecture
 
