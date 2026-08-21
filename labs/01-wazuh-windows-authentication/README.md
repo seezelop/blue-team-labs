@@ -67,11 +67,11 @@ The Wazuh Agent was installed on the Windows endpoint and configured to communic
 
 The agent appeared as active in the Wazuh Dashboard.
 
-```text
+
 Agent name: WINDOWS-ENDPOINT
 Agent status: Active
 Manager: WAZUH-SERVER
-```
+
 
 ## Activity Generated
 
