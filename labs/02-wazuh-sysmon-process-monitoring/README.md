@@ -1,38 +1,34 @@
-﻿# LAB 02 - Wazuh Sysmon Process Monitoring
-
-## Objective
+LAB 02 - Wazuh Sysmon Process Monitoring
+Objective
 
 The objective of this lab is to detect and investigate Windows process execution events using Sysmon and Wazuh.
 
 This lab demonstrates how endpoint process telemetry can be collected, forwarded to a SIEM, and analyzed from a SOC perspective.
 
-Detection flow:
+Detection Flow
 Process execution on Windows
-→ Sysmon Event ID 1
-→ Windows Event Log
-→ Wazuh Agent
-→ Wazuh Server
-→ Wazuh Dashboard
-→ SOC investigation
-
+Sysmon Event ID 1
+Windows Event Log
+Wazuh Agent
+Wazuh Server
+Wazuh Dashboard
+SOC investigation
 Lab Architecture
 
 Due to local hardware limitations, the lab uses the physical Windows host as the monitored endpoint and a virtual machine as the Wazuh server.
 
 Windows Endpoint
-├── Wazuh Agent
-├── Sysmon
-└── Windows Event Logs
-        |
-        | Endpoint telemetry
-        v
+Wazuh Agent
+Sysmon
+Windows Event Logs
+
+The endpoint telemetry is forwarded to the Wazuh Server VM.
+
 Wazuh Server VM
-├── Wazuh Manager
-├── Wazuh Indexer
-└── Wazuh Dashboard
-
-Sanitized lab references:
-
+Wazuh Manager
+Wazuh Indexer
+Wazuh Dashboard
+Sanitized Lab References
 Windows endpoint: WINDOWS-ENDPOINT
 Wazuh server: WAZUH-SERVER
 Wazuh server IP: <WAZUH_SERVER_IP>
@@ -54,10 +50,9 @@ Sysmon was installed on the Windows endpoint to collect detailed process executi
 
 A benign process was launched from PowerShell to generate a controlled Sysmon event.
 
-The main process chain analyzed in this lab was:
-
+Main Process Chain
 powershell.exe
-   └── calc.exe
+calc.exe
 
 This activity was manually generated in a controlled lab environment.
 
@@ -74,29 +69,30 @@ Sysmon was downloaded from Microsoft Sysinternals and extracted on the Windows e
 
 A base Sysmon configuration file was used to improve process telemetry collection.
 
-Sysmon writes events to the following Windows Event Log channel:
+Sysmon Event Channel
 
 Microsoft-Windows-Sysmon/Operational
 
-The main event analyzed in this lab was:
+Main Event Analyzed
 
 Sysmon Event ID 1 - Process Create
+
 Wazuh Agent Configuration
 
 By default, Wazuh Agent did not collect Sysmon events from the Sysmon Operational channel.
 
-To collect Sysmon telemetry, the following block was added to the Wazuh Agent configuration file:
+To collect Sysmon telemetry, the following values were added to the Wazuh Agent configuration file:
 
-<localfile>
-  <location>Microsoft-Windows-Sysmon/Operational</location>
-  <log_format>eventchannel</log_format>
-</localfile>
+Location: Microsoft-Windows-Sysmon/Operational
+Log format: eventchannel
 
-After updating the configuration, the Wazuh Agent service was restarted:
+After updating the configuration, the Wazuh Agent service was restarted using:
 
 Restart-Service WazuhSvc
 
 The agent continued running and started forwarding Sysmon events to Wazuh.
+
+Adding the Sysmon channel to ossec.conf is a collection configuration. It is not a detection rule.
 
 Activity Generated
 
@@ -104,8 +100,7 @@ The following benign processes were executed to generate Sysmon telemetry:
 
 Start-Process notepad.exe
 Start-Process calc.exe
-
-The main event selected for analysis was:
+Main Event Selected
 
 calc.exe launched from powershell.exe
 
@@ -115,83 +110,72 @@ Detection in Wazuh
 
 Wazuh received the Sysmon event and generated an alert.
 
-Key Wazuh rule information:
-
-rule.id: 92066
-rule.level: 4
-rule.groups: sysmon, sysmon_eid1_detections, windows
-rule.mitre.id: T1059.001
-rule.mitre.tactic: Execution
-rule.mitre.technique: PowerShell
-
-The original Sysmon event was:
-
-data.win.system.eventID: 1
+Wazuh Rule Information
+Rule ID: 92066
+Rule level: 4
+Rule groups: sysmon, sysmon_eid1_detections, windows
+MITRE ATT&CK ID: T1059.001
+MITRE tactic: Execution
+MITRE technique: PowerShell
+Original Sysmon Event
+Field: data.win.system.eventID
+Value: 1
 
 Sysmon Event ID 1 represents a process creation event.
 
 Event Analysis
-
-Key fields observed in the event:
-
-data.win.system.eventID: 1
-data.win.system.providerName: Microsoft-Windows-Sysmon
-data.win.system.channel: Microsoft-Windows-Sysmon/Operational
-
-
-data.win.eventdata.image: C:\Windows\SysWOW64\calc.exe
-data.win.eventdata.commandLine: "C:\Windows\system32\calc.exe"
-data.win.eventdata.currentDirectory: C:\Tools\Sysmon\
-
-
-data.win.eventdata.parentImage: C:\Windows\SysWOW64\WindowsPowerShell\v1.0\powershell.exe
-data.win.eventdata.parentCommandLine: "C:\Windows\SysWOW64\WindowsPowerShell\v1.0\powershell.exe"
-
-
-data.win.eventdata.integrityLevel: High
-rule.id: 92066
-rule.description: calc.exe binary in a suspicious location launched by powershell.exe
-
-Field interpretation:
-
-Field	Meaning
-eventID: 1	Sysmon Process Create event
-providerName	Event source: Microsoft-Windows-Sysmon
-channel	Sysmon Operational event channel
-image	Process that was executed
-commandLine	Command line used to launch the process
-currentDirectory	Directory from where the process was launched
-parentImage	Process that launched the child process
-parentCommandLine	Command line of the parent process
-integrityLevel	Privilege/integrity context of the process
-rule.id: 92066	Wazuh rule that matched the event
-T1059.001	MITRE ATT&CK mapping for PowerShell
+System Information
+Event ID: 1
+Provider name: Microsoft-Windows-Sysmon
+Channel: Microsoft-Windows-Sysmon/Operational
+Process Information
+Image: C:\Windows\SysWOW64\calc.exe
+Command line: "C:\Windows\system32\calc.exe"
+Current directory: C:\Tools\Sysmon\
+Parent Process Information
+Parent image: C:\Windows\SysWOW64\WindowsPowerShell\v1.0\powershell.exe
+Parent command line: "C:\Windows\SysWOW64\WindowsPowerShell\v1.0\powershell.exe"
+Security Context
+Integrity level: High
+Wazuh Detection Information
+Rule ID: 92066
+Rule description: calc.exe binary in a suspicious location launched by powershell.exe
+Field Interpretation
+eventID: 1: Sysmon Process Create event.
+providerName: Source that generated the event, in this case Microsoft-Windows-Sysmon.
+channel: Windows Event Log channel where the event was recorded.
+image: Process that was executed.
+commandLine: Command line used to launch the process.
+currentDirectory: Directory from which the process was launched.
+parentImage: Process that launched the child process.
+parentCommandLine: Command line associated with the parent process.
+integrityLevel: Privilege and integrity context of the process.
+rule.id: 92066: Wazuh rule that matched the event.
+T1059.001: MITRE ATT&CK mapping associated with PowerShell.
 SOC Investigation Notes
-
-The observed process chain was:
-
+Observed Process Chain
 powershell.exe
-   └── calc.exe
+calc.exe
 
 In this lab, the activity was expected and controlled.
 
 However, from a SOC perspective, parent-child process relationships are important because they help analysts understand how a process was launched.
 
-PowerShell launching another process is not automatically malicious. It depends on context.
+PowerShell launching another process is not automatically malicious. The activity must be evaluated in context.
 
-Questions an analyst should ask:
-
+Questions an Analyst Should Ask
 What process was executed?
-Who executed it?
+Who executed the process?
 What command line was used?
 What was the parent process?
 Is this parent-child relationship expected?
 Was the process launched from a normal path?
 Was the activity repeated?
 Is there related network activity?
-Is there any follow-up behavior after process execution?
+Was there any follow-up behavior after process execution?
+Investigation Assessment
 
-In this case, the event was classified as lab activity because it was manually generated to validate Sysmon and Wazuh telemetry.
+The event was classified as expected lab activity because it was manually generated to validate Sysmon and Wazuh telemetry.
 
 MITRE ATT&CK
 
@@ -201,31 +185,31 @@ MITRE ATT&CK ID: T1059.001
 Tactic: Execution
 Technique: PowerShell
 
-This mapping is useful because PowerShell is commonly used for legitimate administration and can also be abused by attackers.
+This mapping is useful because PowerShell is commonly used for legitimate administration but can also be abused by attackers.
 
-In this lab, the mapping should be interpreted as detection context, not as proof of malicious activity.
+In this lab, the mapping should be interpreted as detection context and not as proof of malicious activity.
 
 The event shows PowerShell launching a child process, but there was no evidence of:
 
-malicious payload execution
-persistence
-lateral movement
-credential access
-data exfiltration
-command and control
+Malicious payload execution
+Persistence
+Lateral movement
+Credential access
+Data exfiltration
+Command and control
 Conclusion
 
 This lab successfully demonstrated process execution monitoring using Sysmon and Wazuh.
 
 The complete detection flow was validated:
 
-PowerShell launched calc.exe
-→ Sysmon generated Event ID 1
-→ Wazuh Agent collected the Sysmon event
-→ Wazuh Server processed the event
-→ Wazuh generated rule 92066
-→ Wazuh mapped the activity to MITRE T1059.001
-→ The event was reviewed from a SOC perspective
+PowerShell launched calc.exe.
+Sysmon generated Event ID 1.
+Wazuh Agent collected the Sysmon event.
+Wazuh Server received and processed the event.
+Wazuh generated Rule 92066.
+Wazuh mapped the activity to MITRE ATT&CK T1059.001.
+The event was reviewed from a SOC perspective.
 
 The activity was confirmed as expected lab behavior because it was generated manually in a controlled environment.
 
@@ -234,60 +218,81 @@ Sysmon Process Create - calc.exe
 
 The following screenshot shows a Sysmon Event ID 1 generated when calc.exe was executed.
 
+Insert screenshot here.
+
 Parent Process Analysis
 
 The event shows that calc.exe was launched by powershell.exe, which is useful for process tree analysis.
+
+Insert screenshot here.
 
 Sysmon Event ID 1 Details
 
 The event was collected from the Microsoft-Windows-Sysmon/Operational channel.
 
+Insert screenshot here.
+
 Wazuh Rule and MITRE Mapping
 
-Wazuh classified the event using rule 92066 and mapped it to MITRE ATT&CK T1059.001 - PowerShell.
+Wazuh classified the event using Rule 92066 and mapped the activity to MITRE ATT&CK T1059.001 - PowerShell.
+
+Insert screenshot here.
 
 Security and Sanitization Notes
 
 Before publishing screenshots or event data, sensitive information was removed or masked.
 
-Sanitized fields include:
-
-real hostname
-real username
-agent name
-agent IP
-manager name
-process GUIDs
-event record IDs
-personal paths
-unnecessary identifiers
-
-Public documentation uses placeholders such as:
-
+Sanitized Fields
+Real hostname
+Real username
+Agent name
+Agent IP
+Manager name
+Process GUIDs
+Event Record IDs
+Personal paths
+Unnecessary identifiers
+Public Documentation Placeholders
 WINDOWS-ENDPOINT
 WAZUH-SERVER
 <WAZUH_SERVER_IP>
 analyst-user
 <REDACTED_GUID>
 <REDACTED_HASH>
-
 Lessons Learned
 Sysmon provides detailed endpoint telemetry beyond default Windows logs.
 Sysmon Event ID 1 represents process creation.
 Wazuh can collect Sysmon events when the agent is configured to read the Sysmon Operational channel.
-Wazuh rule IDs and Sysmon event IDs are different concepts.
+Wazuh Rule IDs and Sysmon Event IDs are different concepts.
 Parent-child process relationships are important for SOC investigations.
-PowerShell launching another process is not always malicious, but it should be reviewed in context.
-MITRE ATT&CK mappings should be validated against the actual evidence.
+PowerShell launching another process is not always malicious, but the activity should be reviewed in context.
+MITRE ATT&CK mappings should be validated against the available evidence.
 Telemetry must exist before a SIEM can detect or analyze activity.
-By default, the Wazuh Agent collects common Windows channels such as Security, System and Application. However, detailed process creation telemetry requires an additional source such as Sysmon. To collect Sysmon events, the agent must be configured to read the Microsoft-Windows-Sysmon/Operational channel.
-Adding the Sysmon channel to ossec.conf is a collection configuration, not a detection rule. Detection rules are applied later by Wazuh after the event is collected.
+
+By default, the Wazuh Agent collects common Windows channels such as:
+
+Security
+System
+Application
+
+However, detailed process creation telemetry requires an additional source such as Sysmon.
+
+To collect Sysmon events, the agent must be configured to read the following channel:
+
+Microsoft-Windows-Sysmon/Operational
+
+Adding this channel to ossec.conf configures event collection. Detection rules are applied later by Wazuh after the event has been collected.
 
 Possible Improvements
 Generate additional benign process execution scenarios.
-Compare normal parent-child process relationships with suspicious ones.
+Compare normal parent-child process relationships with suspicious relationships.
 Add PowerShell logging in a future lab.
 Detect suspicious command-line arguments.
 Create a custom Wazuh rule for specific process chains.
 Add network telemetry to correlate process execution with outbound connections.
-Extend the lab with Living off the Land examples in a controlled way.
+Extend the lab with controlled Living-off-the-Land scenarios.
+Final Takeaway
+
+Sysmon provides the telemetry, Wazuh provides the detection, and SOC analysis provides the context.
+
+This lab validated the complete telemetry-to-investigation pipeline for Windows process execution monitoring.
