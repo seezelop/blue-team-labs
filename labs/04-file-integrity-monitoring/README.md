@@ -173,7 +173,7 @@ Shows the integrity change detected by Rule `550`, including before/after metada
 
 Shows the deletion event detected by Rule `553` together with the associated MITRE ATT&CK mappings.
 
-![FIM file deletion and MITRE mapping](screenshots/03-fim-file-deleted-mitre.JPG)
+![FIM file deletion and MITRE mapping](screenshots/03-fim-file-deleted-mitre.png)
 
 ---
 
