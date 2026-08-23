@@ -49,7 +49,7 @@ Endpoint telemetry is forwarded to the Wazuh Server VM.
 
 - Windows 10
 - Sysmon
-- Sysmon configuration file
+- SwiftOnSecurity Sysmon configuration
 - Wazuh Agent
 - Wazuh Server
 - Wazuh Dashboard
@@ -87,7 +87,7 @@ The goal was to verify that:
 
 Sysmon was downloaded from **Microsoft Sysinternals** and extracted on the Windows endpoint.
 
-A base Sysmon configuration file was used to improve process telemetry collection.
+A base Sysmon configuration file was downloaded from the SwiftOnSecurity/sysmon-config GitHub repository and used to improve process telemetry collection.
 
 ### Sysmon Event Channel
 
