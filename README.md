@@ -17,6 +17,8 @@ All activities are performed in a safe lab environment without malware or attack
 * Sysmon
 * Windows Event Logs
 * PowerShell
+* Wireshark
+* Npcap
 
 ### Wazuh Server
 
@@ -138,42 +140,110 @@ Observed MITRE mappings included:
 
 ### LAB 05 - PowerShell Defensive Monitoring
 
-**Status:** Planned
+**Status:** Completed
 
-Focus:
+Monitoring PowerShell activity using Windows PowerShell Operational logs and Wazuh.
+
+Main topics:
 
 * PowerShell execution monitoring
-* Command-line analysis
-* Windows Event Logs
-* Sysmon
-* Wazuh
-* Legitimate vs suspicious PowerShell activity
+* Script Block Logging
+* Windows Event ID `4104`
+* PowerShell Operational logs
+* Wazuh event collection
+* Telemetry vs alerting
+* Detection troubleshooting
+
+Successful detection:
+
+* Wazuh Rule `91843`
+
+Observed MITRE mappings:
+
+* `T1059.001 - PowerShell`
+* `T1112 - Modify Registry`
+
+Main lesson:
+
+**Telemetry ≠ Alert**
+
+An event may reach the SIEM without generating an alert unless a detection rule matches the activity.
 
 ---
 
 ### LAB 06 - Network Analysis with Wireshark / tcpdump
 
-**Status:** Planned
+**Status:** Completed
 
-Focus:
+Basic network traffic analysis using Wireshark.
+
+Traffic analyzed:
+
+* DNS
+* HTTP
+* HTTPS
+* TCP
+* TLS
+
+Main topics:
 
 * Packet capture
-* DNS
-* HTTP/HTTPS
-* Outbound connections
+* DNS queries and responses
+* DNS A records
+* Transaction IDs
+* HTTP GET requests
+* HTTP 200 responses
+* TCP three-way handshake
+* TLS Client Hello
+* TLS Server Hello
+* SNI
+* Encrypted Application Data
 * Basic network investigation
+
+Main investigation flow:
+
+**DNS → TCP → HTTP / TLS → Network Investigation**
 
 ---
 
 ### LAB 07 - Advanced File Integrity Monitoring
 
-**Status:** Planned
+**Status:** Completed
 
-Focus:
+Advanced Wazuh File Integrity Monitoring using Who-data.
 
-* Sensitive file monitoring
-* Normal vs suspicious file activity
-* Advanced Wazuh FIM analysis
+The lab extended standard FIM by identifying not only that a file changed, but also which user and which process performed the modification.
+
+Controlled modifications were performed using:
+
+* `notepad.exe`
+* `powershell.exe`
+
+Main topics:
+
+* Wazuh FIM
+* `realtime="yes"`
+* `whodata="yes"`
+* User attribution
+* Process attribution
+* File hashes
+* File metadata changes
+* SOC investigation
+
+Detection:
+
+* Wazuh Rule `550`
+* Level `7`
+* `Integrity checksum changed`
+
+MITRE ATT&CK:
+
+* `T1565.001 - Stored Data Manipulation`
+* Tactic: `Impact`
+
+Main investigation flow:
+
+**File Modification → FIM → Who-data → User + Process → Wazuh Rule 550 → MITRE ATT&CK**
 
 ---
 
@@ -252,7 +322,28 @@ Focus:
 
 ---
 
-### LAB 13 - Mini SOC Investigation Scenario
+### LAB 13 - Wazuh SOC Features
+
+**Status:** Planned
+
+Exploration of additional Wazuh capabilities that complement SOC monitoring and investigation.
+
+Focus:
+
+* Custom rules
+* Custom decoders
+* Syscollector
+* Endpoint inventory context
+* Agent groups
+* Centralized configuration
+* Registry monitoring with FIM
+* Introduction to Active Response
+
+The objective is to understand additional Wazuh features that can improve detection, context and response without turning the lab into a hardening-focused exercise.
+
+---
+
+### LAB 14 - Mini SOC Investigation Scenario
 
 **Status:** Planned
 
@@ -266,7 +357,11 @@ Focus:
 * Sysmon
 * Wazuh
 * Windows telemetry
+* Network evidence where applicable
+* MITRE ATT&CK
 * Automation where applicable
+
+The objective is to investigate a controlled scenario by correlating telemetry collected throughout the series.
 
 ---
 
@@ -288,6 +383,8 @@ Examples include:
 * Tokens
 * Passwords
 * Unnecessary hashes
+* MAC addresses
+* Network interface identifiers
 
 Public documentation uses placeholders such as:
 
@@ -310,20 +407,25 @@ This repository focuses on developing practical skills in:
 * Sysmon
 * Wazuh
 * File Integrity Monitoring
+* Wazuh Who-data
 * PowerShell defensive monitoring
 * Network analysis
 * Linux auditing
 * MITRE ATT&CK
 * Threat Intelligence
 * Incident investigation
+* Event correlation
+* Custom Wazuh rules
+* Wazuh decoders
 * Security automation
 * SOAR
+* Active Response
 
 ---
 
 ## Progress
 
-**Completed:** 4 / 13 labs
+**Completed:** 7 / 14 labs
 
 ---
 
