@@ -124,7 +124,7 @@ This sub-technique belongs to:
 
 The technique represents the modification of stored data in a way that can affect its integrity.
 
-![MITRE T1565.001](screenshots/04-mitre-t1565-001-stored-data-manipulation.png)
+![MITRE T1565.001](screenshots/04-mitre-t1565-001-stored-data-manipulation.PNG)
 
 ---
 
